@@ -4,6 +4,10 @@
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 
+if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]; then
+  echo "::warning::CLAUDE_CODE_OAUTH_TOKEN secret not set - skipping."; exit 0
+fi
+
 if [ "${FORCE:-false}" != "true" ]; then
   status=$(bash "$here/usage.sh")
   echo "usage: $status"
