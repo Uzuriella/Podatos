@@ -2,7 +2,7 @@ name: Start Claude 5h window
 
 on:
   schedule:
-    - cron: "*/30 * * * *"   # checks every 30 min; only pings when idle
+    - cron: "7,37 * * * *"   # every 30 min, off the busy :00/:30 marks GitHub often skips
   workflow_dispatch:
     inputs:
       force:
