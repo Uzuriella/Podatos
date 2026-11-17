@@ -18,11 +18,22 @@ fi
 
 # Haiku, no tools, no MCP, no settings, a 5-word system prompt and a
 # 1-character message: a few dozen tokens instead of the usual ~20k.
-npx -y @anthropic-ai/claude-code@latest -p "." \
+set +e
+out=$(npx -y @anthropic-ai/claude-code@latest -p "." \
   --model haiku \
   --tools "" \
   --strict-mcp-config \
   --setting-sources "" \
-  --system-prompt "Reply with one character."
+  --system-prompt "Reply with one character." 2>&1)
+rc=$?
+set -e
+echo "$out"
+if [ $rc -ne 0 ]; then
+  # Hitting your usage limit means a window is already running: not an error.
+  if echo "$out" | grep -qiE 'limit|429|rate.?limit|resets'; then
+    echo "::notice::Usage limit reached - a window is already running."; exit 0
+  fi
+  echo "::error::Ping failed (exit $rc) - check the CLAUDE_CODE_OAUTH_TOKEN secret."; exit $rc
+fi
 echo
 echo "Window started. Now: $(bash "$here/usage.sh")"
