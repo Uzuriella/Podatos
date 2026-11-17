@@ -1,0 +1,26 @@
+name: Start Claude 5h window
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # checks every 30 min; only pings when idle
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Ping even if a window seems active"
+        type: boolean
+        default: false
+
+concurrency: { group: kick, cancel-in-progress: false }
+
+jobs:
+  kick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: { sparse-checkout: scripts }
+      - name: Ping if idle
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          FORCE: ${{ inputs.force || 'false' }}
+        run: bash scripts/kick.sh
